@@ -111,9 +111,8 @@ architecture Behavioral of MIPS is
 	end component;
 	
 	component jump_shift is
-	Port( A : in STD_LOGIC_VECTOR(size - 7 downto 0);
-		  B : in STD_LOGIC_VECTOR(3 downto 0);
-		  Y : out STD_LOGIC_VECTOR(size - 1 downto 0));
+	Port( A : in STD_LOGIC_VECTOR(25 downto 0);
+		  Y : out STD_LOGIC_VECTOR(27 downto 0));
 	end component;
 	
 	component program_counter is
@@ -311,7 +310,7 @@ begin
 			Y => shiftSignExtended
 		);
 		
-	Shifter2: shift_left_by_2
+	Shifter2: jump_shift
 		port map(
 			A => jumpAddress,
 			Y => shiftJumpAddress
