@@ -43,8 +43,8 @@ architecture Behavioral of MIPS is
           ALUSrc : out  STD_LOGIC;
           RegDst : out  STD_LOGIC;
           RegWrite : out  STD_LOGIC;
-	       Jump: out STD_LOGIC;
-		    ALUOp: out STD_LOGIC_VECTOR(2 downto 0));
+	      Jump: out STD_LOGIC;
+		  ALUOp: out STD_LOGIC_VECTOR(2 downto 0));
 	end component;
 	
 	component ALU is
@@ -52,7 +52,7 @@ architecture Behavioral of MIPS is
            B : in  STD_LOGIC_VECTOR (31 downto 0);
            S : in  STD_LOGIC_VECTOR (3 downto 0);
            --Y : out  STD_LOGIC_VECTOR (31 downto 0);
-			  Y : buffer  STD_LOGIC_VECTOR (31 downto 0);
+		   Y : buffer  STD_LOGIC_VECTOR (31 downto 0);
            Z : out  STD_LOGIC);
 	end component;
 	
@@ -112,14 +112,14 @@ architecture Behavioral of MIPS is
 	
 	component jump_shift is
 	Port( A : in STD_LOGIC_VECTOR(size - 7 downto 0);
-			B : in STD_LOGIC_VECTOR(3 downto 0);
-			Y : out STD_LOGIC_VECTOR(size - 1 downto 0));
+		  B : in STD_LOGIC_VECTOR(3 downto 0);
+		  Y : out STD_LOGIC_VECTOR(size - 1 downto 0));
 	end component;
 	
 	component program_counter is
 	Port ( in_address : in  STD_LOGIC_VECTOR (31 downto 0);
-           out_address : out  STD_LOGIC_VECTOR (31 downto 0);
-			  clk : in STD_LOGIC);
+		   out_address : out  STD_LOGIC_VECTOR (31 downto 0);
+		   clk : in STD_LOGIC);
 	end component;
 	
 	component and_gate is
@@ -129,58 +129,58 @@ architecture Behavioral of MIPS is
 	end component;
 	
 	signal MemtoReg,
-          MemWrite,
-          Branch,
-          ALUSrc,
-          RegDst,
-          RegWrite,
+           MemWrite,
+           Branch,
+           ALUSrc,
+           RegDst,
+           RegWrite,
 	       Jump,
-			 zeroFlag,
-			 branchAndGate
-			 : STD_LOGIC := "0";
+		   zeroFlag,
+		   branchAndGate
+		   : STD_LOGIC := "0";
 	
 	signal instruction,
-			 instructionAddress,
-			 nextInstructionAddress,
-			 nextAddress,
-			 ALUresult,
-			 RD1,
-			 RD2,
-			 WD,
-			 immSignExtended,
-			 shiftSignExtended,
-			 ALUinput2,
-			 ReadData,
-			 shiftJumpAddress,
-			 PCandBranchMUX,
-			 PCandJumpMUX,
-			 concatJumpAddress,
-			 branchAddress,
-			 BranchOrPC
-			 : STD_LOGIC_VECTOR(31 downto 0);
+			instructionAddress,
+			nextInstructionAddress,
+			nextAddress,
+			ALUresult,
+			RD1,
+			RD2,
+			WD,
+			immSignExtended,
+			shiftSignExtended,
+			ALUinput2,
+			ReadData,
+			shiftJumpAddress,
+			PCandBranchMUX,
+			PCandJumpMUX,
+			concatJumpAddress,
+			branchAddress,
+			BranchOrPC
+			: STD_LOGIC_VECTOR(31 downto 0);
 			 
 	signal RS,
-			 RT,
-			 RD,
-			 SHAMT,
-			 WriteReg
-			 : STD_LOGIC_VECTOR(4 downto 0);
+			RT,
+			RD,
+			SHAMT,
+			WriteReg
+			: STD_LOGIC_VECTOR(4 downto 0);
 			 
 	signal OpCode,
-			 Funct
-			 : STD_LOGIC_VECTOR(5 downto 0);
+			Funct
+			: STD_LOGIC_VECTOR(5 downto 0);
 			 
 	signal ALUOp
-			 : STD_LOGIC_VECTOR(1 downto 0);
+			: STD_LOGIC_VECTOR(1 downto 0);
 	
 	signal ALUoutOp
-			 : STD_LOGIC_VECTOR(3 downto 0);
+			: STD_LOGIC_VECTOR(3 downto 0);
 			 
 	signal immediate
-			 : STD_LOGIC_VECTOR(15 downto 0);
+			: STD_LOGIC_VECTOR(15 downto 0);
 	
 	signal jumpAddress
-			 : STD_LOGIC_VECTOR(25 downto 0);
+			: STD_LOGIC_VECTOR(25 downto 0);
 			
 
 begin
@@ -209,12 +209,12 @@ begin
 	Control_unit: control_unit
 		port map(
 			MemtoReg => MemtoReg,
-          MemWrite => MemWrite,
-          Branch => Branch,
-          ALUSrc => ALUSrc,
-          RegDst => RegDst,
-          RegWrite => RegWrite,
-	       Jump => Jump
+			MemWrite => MemWrite,
+			Branch => Branch,
+			ALUSrc => ALUSrc,
+			RegDst => RegDst,
+			RegWrite => RegWrite,
+			Jump => Jump
 		);
 		
 	Sign_extension: sign_extension
@@ -226,13 +226,13 @@ begin
 	Register_file: register_file
 		port map(
 			CLK => CLK,
-           A1 => RS,
-           A2 => RT,
-           A3 => WriteReg,
-           WE3 => RegWrite,
-           WD3 => result,
-           RD1 => RD1,
-           RD2 => RD2
+			A1 => RS,
+			A2 => RT,
+			A3 => WriteReg,
+			WE3 => RegWrite,
+			WD3 => result,
+			RD1 => RD1,
+			RD2 => RD2
 		);
 	
 	ALU_Control: ALU_control
@@ -254,10 +254,10 @@ begin
 	Data_memory: data_memory
 		port map(
 			A => instructionAddress,
-         WD => WriteData,
-         WE => MemWrite,
-         CLK => CLK,
-         RD => ReadData
+			WD => WriteData,
+			WE => MemWrite,
+			CLK => CLK,
+			RD => ReadData
 		);
 		
 	-- ALU Src B MUX	
@@ -343,6 +343,12 @@ begin
 			A => Branch,
 			B => zeroFlag,
 			Y => branchAndGate
+		);
+		
+	instructionMemory: instruction_memory
+		port map(
+			A => instructionAddress,
+			RD => instruction
 		);
 		
 end Behavioral;
