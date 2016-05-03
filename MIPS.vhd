@@ -30,7 +30,9 @@ use IEEE.STD_LOGIC_1164.ALL;
 --use UNISIM.VComponents.all;
 
 entity MIPS is
-	Port( CLK: in STD_LOGIC);
+	Port( CLK: in STD_LOGIC; 
+			RESET: in STD_LOGIC;
+			result: inout STD_LOGIC_VECTOR(31 downto 0));
 end MIPS;
 
 architecture Behavioral of MIPS is
@@ -128,13 +130,13 @@ architecture Behavioral of MIPS is
            Y : out  STD_LOGIC);
 	end component;
 	
-	signal MemtoReg1,
-           MemWrite1,
-           Branch1,
-           ALUSrc1,
-           RegDst1,
-           RegWrite1,
-	       Jump1,
+	signal MemtoReg,
+           MemWrite,
+           Branch,
+           ALUSrc,
+           RegDst,
+           RegWrite,
+	       Jump,
 		   zeroFlag,
 		   branchAndGate
 		   : STD_LOGIC := '0';
@@ -155,8 +157,8 @@ architecture Behavioral of MIPS is
 			PCandJumpMUX,
 			concatJumpAddress,
 			branchAddress,
-			BranchOrPC,
-			result
+			BranchOrPC
+			--result
 			: STD_LOGIC_VECTOR(31 downto 0);
 			 
 	signal RS,
@@ -190,18 +192,18 @@ architecture Behavioral of MIPS is
 
 begin
 
-	process(CLK)
-	begin
-	
-		if (CLK = '1') and (CLK'event) then
-			if (enable = '1') then
-				enable <= '0';
-			else
-				enable <= '1';
-			end if;
-		end if;
-	
-	end process;
+--	process(CLK)
+--	begin
+--	
+--		if (CLK = '1') and (CLK'event) then
+--			if (enable = '1') then
+--				enable <= '0';
+--			else
+--				enable <= '1';
+--			end if;
+--		end if;
+--	
+--	end process;
 
 	OpCode1 <= instruction(31 downto 26);
 	RS <= instruction(25 downto 21);
@@ -217,100 +219,100 @@ begin
 	-- components - signals mapping
 	ControlUnit: control_unit
 		port map(
-			OpCode => OpCode1,
-			MemtoReg => MemtoReg1,
-			MemWrite => MemWrite1,
-			Branch => Branch1,
-			ALUSrc => ALUSrc1,
-			RegDst => RegDst1,
-			RegWrite => RegWrite1,
-			Jump => Jump1
+			OpCode1,
+			MemtoReg1,
+			MemWrite1,
+			Branch1,
+			ALUSrc1,
+			RegDst1,
+			RegWrite1,
+			Jump1
 		);
 		
 	SignExtension: sign_extension
 		port map(
-			A => immediate,
-			Y => immSignExtended
+			immediate,
+			immSignExtended
 		);
 	
 	RegisterFile: register_file
 		port map(
-			CLK => enable,
-			A1 => RS,
-			A2 => RT,
-			A3 => WriteReg,
-			WE3 => RegWrite1,
-			WD3 => result,
-			RD1 => RD1,
-			RD2 => RD2
+			CLK,
+			RS,
+			RT,
+			WriteReg,
+			RegWrite1,
+			result,
+			RD1,
+			RD2
 		);
 	
 	ALUcontrol: ALU_control
 		port map(
-			Funct => Funct,
-			ALUOp => ALUOp,
-			OutOp => ALUoutOp
+			Funct,
+			ALUOp,
+			ALUoutOp
 		);
 		
 	ALUU: ALU
 		port map(
-			A => RD1,
-			B => ALUinput2,
-			S => ALUoutOp,
-			Y => ALUresult,
-			Z => zeroFlag
+			RD1,
+			ALUinput2,
+			ALUoutOp,
+			ALUresult,
+			zeroFlag
 		);
 		
 	DataMemory: data_memory
 		port map(
-			A => instructionAddress,
-			WD => RD2,
-			WE => MemWrite1,
-			CLK => enable,
-			RD => ReadData
+			instructionAddress,
+			RD2,
+			MemWrite1,
+			CLK,
+			ReadData
 		);
 		
 	-- ALU Src B MUX	
 	MUX1: mux_2_to_1
 		port map(
-			A => RD2,
-			B => immSignExtended,
-			S => ALUSrc1,
-			Y => ALUinput2
+			RD2,
+			immSignExtended,
+			ALUSrc1,
+			ALUinput2
 		);
 		
 	-- ALU result or ReadData MUX
 	MUX2: mux_2_to_1
 		port map(
-			A => ALUresult,
-			B => ReadData,
-			S => MemtoReg1,
-			Y => result
+			ALUresult,
+			ReadData,
+			MemtoReg1,
+			result
 		);
 		
 	-- RT or RD MUX
 	MUX3: mux_2_to_1
 		generic map(5)
 		port map(
-			A => RT,
-			B => RD,
-			S => RegDst1,
-			Y => WriteReg
+			RT,
+			RD,
+			RegDst1,
+			WriteReg
 		);
 		
 	-- Jump or PC
 	MUX4: mux_2_to_1
 		port map(
-			A => BranchOrPC,
-			B => concatJumpAddress,
-			S => Jump1,
-			Y => nextAddress
+			BranchOrPC,
+			concatJumpAddress,
+			Jump1,
+			nextAddress
 		);
 		
 	-- Branch or PC
 	MUX5: mux_2_to_1
 		port map(
-		nextInstructionAddress,
+			nextInstructionAddress,
 			branchAddress,
 			branchAndGate,
 			BranchOrPC
@@ -318,48 +320,48 @@ begin
 		
 	Shifter1: shift_left_by_2
 		port map(
-			A => immSignExtended,
-			Y => shiftSignExtended
+			immSignExtended,
+			shiftSignExtended
 		);
 		
 	Shifter2: jump_shift
 		port map(
-			A => jumpAddress,
-			Y => shiftJumpAddress
+			jumpAddress,
+			shiftJumpAddress
 		);
 		
 	Adder1: adder
 		port map(
-			A => shiftSignExtended,
-			B => nextInstructionAddress,
-			Y => branchAddress
+			shiftSignExtended,
+			nextInstructionAddress,
+			branchAddress
 		);
 		
 	Adder2: adder
 		port map(
-			A => instructionAddress,
-			B => "00000000000000000000000000000100",
-			Y => nextInstructionAddress
+			instructionAddress,
+			"00000000000000000000000000000100",
+			nextInstructionAddress
 		);
 		
-	PC: program_counter
+	ProgramCounter: program_counter
 		port map(
-			in_address => nextAddress,
-			out_address => instructionAddress,
-			clk => enable
+			nextAddress,
+			instructionAddress,
+			CLK
 		);
 	
 	ANDgate: and_gate
 		port map(
-			A => Branch1,
-			B => zeroFlag,
-			Y => branchAndGate
+			Branch1,
+			zeroFlag,
+			branchAndGate
 		);
 		
 	instructionMemory: instruction_memory
 		port map(
-			A => instructionAddress,
-			RD => instruction
+			instructionAddress,
+			instruction
 		);
 		
 end Behavioral;

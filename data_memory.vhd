@@ -41,10 +41,43 @@ end data_memory;
 architecture Behavioral of data_memory is
 
 	type memory is array(0 to 63) of STD_LOGIC_VECTOR(31 downto 0);
-	signal myMemory: memory;
+	signal myMemory: memory := (
+		 X"00000005", -- initialize data memory
+		 X"00000000", -- mem 1
+		 X"00000000",
+		 X"00000000",
+		 X"00000004",
+		 X"00000000",
+		 X"00000000",
+		 X"00000000",
+		 X"00000000",
+		 X"00000000", 
+		 X"00000000", -- mem 10 
+		 X"00000000", 
+		 X"00000000",
+		 X"00000000",
+		 X"00000000",
+		 X"00000000",
+		 X"00000000",
+		 X"00000000",
+		 X"00000000",
+		 X"00000000",  
+		 X"00000000", -- mem 20
+		 X"00000000",
+		 X"00000000",
+		 X"00000000",
+		 X"00000000", 
+		 X"00000000",
+		 X"00000000",
+		 X"00000000",
+		 X"00000000",
+		 X"00000000", 
+		 X"00000000", -- mem 30
+		 X"00000000"
+	);
 
 begin
-	process(A, WD, CLK)
+	process(CLK)
 	begin
 		
 		if (clk'event) and (clk = '1') then

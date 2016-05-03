@@ -44,7 +44,40 @@ end register_file;
 architecture Behavioral of register_file is
 
 	type memory is array(0 to 31) of STD_LOGIC_VECTOR(31 downto 0);
-	signal registers : memory;
+	signal registers : memory := (
+		 X"00000000", -- initialize data memory
+		 X"00000000", -- mem 1
+		 X"00000000",
+		 X"00000000",
+		 X"00000000",
+		 X"00000000",
+		 X"00000000",
+		 X"00000000",
+		 X"00000000",
+		 X"00000000", 
+		 X"00000000", -- mem 10 
+		 X"00000000", 
+		 X"00000000",
+		 X"00000000",
+		 X"00000000",
+		 X"00000000",
+		 X"00000000",
+		 X"00000000",
+		 X"00000000",
+		 X"00000000",  
+		 X"0000000E", -- mem 20
+		 X"00000005",
+		 X"00000000",
+		 X"00000000",
+		 X"00000000", 
+		 X"00000000",
+		 X"00000000",
+		 X"00000000",
+		 X"00000000",
+		 X"00000000", 
+		 X"00000000", -- mem 30
+		 X"00000000"
+	);
 
 begin
 	process(CLK)

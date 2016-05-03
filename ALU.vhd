@@ -82,16 +82,13 @@ begin
 			end if;
 		when "1100" =>
 			y <= a - b;
-			temp := SIGNED(a) - SIGNED(b);
-			if (temp = x"0000") then
-				z <= '1';
-			else
-				z <= '0';
-			end if;
 		when others =>
 			y <= "UUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUU";
 		end case;
 				
 	end process;
+	
+	z <= '1' when CONV_INTEGER(UNSIGNED(y)) = 0 else
+		  '0';
 
 end Behavioral;
