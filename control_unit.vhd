@@ -49,63 +49,73 @@ begin
 	
 		case OpCode is
 			when "000000" => -- R type
-				MemtoReg <= "0";
-				MemWrite <= "0";
-				Branch <= "0";
-				ALUSrc <= "0";
-				RegDst <= "1";
-				RegWrite <= "1";
-				Jump <= "0";
+				MemtoReg <= '0';
+				MemWrite <= '0';
+				Branch <= '0';
+				ALUSrc <= '0';
+				RegDst <= '1';
+				RegWrite <= '1';
+				Jump <= '0';
 				ALUOp(1 downto 0) <= "10";
 				
 			when "100011" => -- lw
-				MemtoReg <= "1";
-				MemWrite <= "0";
-				Branch <= "0";
-				ALUSrc <= "1";
-				RegDst <= "0";
-				RegWrite <= "1";
-				Jump <= "0";
+				MemtoReg <= '1';
+				MemWrite <= '0';
+				Branch <= '0';
+				ALUSrc <= '1';
+				RegDst <= '0';
+				RegWrite <= '1';
+				Jump <= '0';
 				ALUOp(1 downto 0) <= "00";
 				
 			when "101011" => -- sw
-				MemtoReg <= "U";
-				MemWrite <= "1";
-				Branch <= "0";
-				ALUSrc <= "1";
-				RegDst <= "U";
-				RegWrite <= "0";
-				Jump <= "0";
+				MemtoReg <= 'U';
+				MemWrite <= '1';
+				Branch <= '0';
+				ALUSrc <= '1';
+				RegDst <= 'U';
+				RegWrite <= '0';
+				Jump <= '0';
 				ALUOp(1 downto 0) <= "00";
 				
 			when "000100" => -- beq
-				MemtoReg <= "U";
-				MemWrite <= "0";
-				Branch <= "1";
-				ALUSrc <= "0";
-				RegDst <= "U";
-				RegWrite <= "0";
-				Jump <= "0";
+				MemtoReg <= 'U';
+				MemWrite <= '0';
+				Branch <= '1';
+				ALUSrc <= '0';
+				RegDst <= 'U';
+				RegWrite <= '0';
+				Jump <= '0';
 				ALUOp(1 downto 0) <= "01";
 				
 			when "001000" => -- addi
-				MemtoReg <= "0";
-				MemWrite <= "0";
-				Branch <= "0";
-				ALUSrc <= "1";
-				RegDst <= "0";
-				RegWrite <= "1";
-				Jump <= "0";
+				MemtoReg <= '0';
+				MemWrite <= '0';
+				Branch <= '0';
+				ALUSrc <= '1';
+				RegDst <= '0';
+				RegWrite <= '1';
+				Jump <= '0';
 				ALUOp(1 downto 0) <= "00";
 				
 			when "000010" => -- j
-				MemtoReg <= "U";
-				MemWrite <= "0";
-				Branch <= "U";
-				ALUSrc <= "U";
-				RegDst <= "U";
-				RegWrite <= "0";
-				Jump <= "1";
+				MemtoReg <= 'U';
+				MemWrite <= '0';
+				Branch <= 'U';
+				ALUSrc <= 'U';
+				RegDst <= 'U';
+				RegWrite <= '0';
+				Jump <= '1';
+				ALUOp(1 downto 0) <= "UU";
+				
+			when others =>
+				MemtoReg <= 'U';
+				MemWrite <= 'U';
+				Branch <= 'U';
+				ALUSrc <= 'U';
+				RegDst <= 'U';
+				RegWrite <= 'U';
+				Jump <= 'U';
 				ALUOp(1 downto 0) <= "UU";
 		end case;
 		

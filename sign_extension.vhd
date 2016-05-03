@@ -38,8 +38,8 @@ architecture Behavioral of sign_extension is
 
 begin
 
-	y <= (x"00" & a) when(a(15) = '0') else
-		  (x"ff" & a);
+	y <= (x"0000" & a) when(a(15) = '0') else
+		  (x"ffff" & a);
 
 end Behavioral;
 

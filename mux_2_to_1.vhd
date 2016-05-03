@@ -41,7 +41,7 @@ architecture Behavioral of mux_2_to_1 is
 
 begin
 
-	y <= a when(s = "0") else
+	y <= a when(s = '0') else
 		  b;
 
 end Behavioral;

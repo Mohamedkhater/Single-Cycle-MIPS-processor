@@ -19,6 +19,7 @@
 ----------------------------------------------------------------------------------
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
+use IEEE.STD_LOGIC_ARITH.ALL;
 
 -- Uncomment the following library declaration if using
 -- arithmetic functions with Signed or Unsigned values
@@ -46,13 +47,13 @@ begin
 	process(A, WD, CLK)
 	begin
 		
-		if (clk'event) and (clk = "1") then
-			if (WE = "1") then
-				myMemory(CONV_INTEGER(A)) <= WD;
+		if (clk'event) and (clk = '1') then
+			if (WE = '1') then
+				myMemory(CONV_INTEGER(UNSIGNED(A))) <= WD;
 			end if;
 		end if;
 		
-		RD <= myMemory(CONV_INTEGER(A));
+		RD <= myMemory(CONV_INTEGER(UNSIGNED(A)));
 		
 	end process;
 

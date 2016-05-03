@@ -82,10 +82,11 @@ architecture Behavioral of MIPS is
 	end component;
 	
 	component mux_2_to_1 is
-	Port ( A : in  STD_LOGIC_VECTOR (31 downto 0);
-           B : in  STD_LOGIC_VECTOR (31 downto 0);
+	generic(size: integer := 32);
+	Port ( A : in  STD_LOGIC_VECTOR (size - 1 downto 0);
+           B : in  STD_LOGIC_VECTOR (size - 1 downto 0);
            S : in  STD_LOGIC;
-           Y : out  STD_LOGIC_VECTOR (31 downto 0));
+           Y : out  STD_LOGIC_VECTOR (size - 1 downto 0));
 	end component;
 	
 	component register_file is
@@ -127,16 +128,16 @@ architecture Behavioral of MIPS is
            Y : out  STD_LOGIC);
 	end component;
 	
-	signal MemtoReg,
-           MemWrite,
-           Branch,
-           ALUSrc,
-           RegDst,
-           RegWrite,
-	       Jump,
+	signal MemtoReg1,
+           MemWrite1,
+           Branch1,
+           ALUSrc1,
+           RegDst1,
+           RegWrite1,
+	       Jump1,
 		   zeroFlag,
 		   branchAndGate
-		   : STD_LOGIC := "0";
+		   : STD_LOGIC := '0';
 	
 	signal instruction,
 			instructionAddress,
@@ -150,12 +151,12 @@ architecture Behavioral of MIPS is
 			shiftSignExtended,
 			ALUinput2,
 			ReadData,
-			shiftJumpAddress,
 			PCandBranchMUX,
 			PCandJumpMUX,
 			concatJumpAddress,
 			branchAddress,
-			BranchOrPC
+			BranchOrPC,
+			result
 			: STD_LOGIC_VECTOR(31 downto 0);
 			 
 	signal RS,
@@ -165,7 +166,7 @@ architecture Behavioral of MIPS is
 			WriteReg
 			: STD_LOGIC_VECTOR(4 downto 0);
 			 
-	signal OpCode,
+	signal OpCode1,
 			Funct
 			: STD_LOGIC_VECTOR(5 downto 0);
 			 
@@ -181,19 +182,28 @@ architecture Behavioral of MIPS is
 	signal jumpAddress
 			: STD_LOGIC_VECTOR(25 downto 0);
 			
+	signal shiftJumpAddress
+			: STD_LOGIC_VECTOR(27 downto 0);
+			
+	signal enable : STD_LOGIC := '0';
+			
 
 begin
 
 	process(CLK)
 	begin
 	
-		if (CLK = "1") and (CLK'event) then
-			
+		if (CLK = '1') and (CLK'event) then
+			if (enable = '1') then
+				enable <= '0';
+			else
+				enable <= '1';
+			end if;
 		end if;
 	
 	end process;
 
-	OpCode <= instruction(31 downto 26);
+	OpCode1 <= instruction(31 downto 26);
 	RS <= instruction(25 downto 21);
 	RT <= instruction(20 downto 16);
 	RD <= instruction(15 downto 11);
@@ -205,43 +215,44 @@ begin
 	
 	
 	-- components - signals mapping
-	Control_unit: control_unit
+	ControlUnit: control_unit
 		port map(
-			MemtoReg => MemtoReg,
-			MemWrite => MemWrite,
-			Branch => Branch,
-			ALUSrc => ALUSrc,
-			RegDst => RegDst,
-			RegWrite => RegWrite,
-			Jump => Jump
+			OpCode => OpCode1,
+			MemtoReg => MemtoReg1,
+			MemWrite => MemWrite1,
+			Branch => Branch1,
+			ALUSrc => ALUSrc1,
+			RegDst => RegDst1,
+			RegWrite => RegWrite1,
+			Jump => Jump1
 		);
 		
-	Sign_extension: sign_extension
+	SignExtension: sign_extension
 		port map(
 			A => immediate,
 			Y => immSignExtended
 		);
 	
-	Register_file: register_file
+	RegisterFile: register_file
 		port map(
-			CLK => CLK,
+			CLK => enable,
 			A1 => RS,
 			A2 => RT,
 			A3 => WriteReg,
-			WE3 => RegWrite,
+			WE3 => RegWrite1,
 			WD3 => result,
 			RD1 => RD1,
 			RD2 => RD2
 		);
 	
-	ALU_Control: ALU_control
+	ALUcontrol: ALU_control
 		port map(
 			Funct => Funct,
 			ALUOp => ALUOp,
 			OutOp => ALUoutOp
 		);
 		
-	ALU: ALU
+	ALUU: ALU
 		port map(
 			A => RD1,
 			B => ALUinput2,
@@ -250,12 +261,12 @@ begin
 			Z => zeroFlag
 		);
 		
-	Data_memory: data_memory
+	DataMemory: data_memory
 		port map(
 			A => instructionAddress,
-			WD => WriteData,
-			WE => MemWrite,
-			CLK => CLK,
+			WD => RD2,
+			WE => MemWrite1,
+			CLK => enable,
 			RD => ReadData
 		);
 		
@@ -264,7 +275,7 @@ begin
 		port map(
 			A => RD2,
 			B => immSignExtended,
-			S => ALUSrc,
+			S => ALUSrc1,
 			Y => ALUinput2
 		);
 		
@@ -273,16 +284,17 @@ begin
 		port map(
 			A => ALUresult,
 			B => ReadData,
-			S => MemtoReg,
+			S => MemtoReg1,
 			Y => result
 		);
 		
 	-- RT or RD MUX
 	MUX3: mux_2_to_1
+		generic map(5)
 		port map(
 			A => RT,
 			B => RD,
-			S => RegDst,
+			S => RegDst1,
 			Y => WriteReg
 		);
 		
@@ -291,17 +303,17 @@ begin
 		port map(
 			A => BranchOrPC,
 			B => concatJumpAddress,
-			S => Jump,
+			S => Jump1,
 			Y => nextAddress
 		);
 		
 	-- Branch or PC
 	MUX5: mux_2_to_1
 		port map(
-			A => nextInstructionAddress,
-			B => branchAddress,
-			S => branchAndGate,
-			Y => BranchOrPC
+		nextInstructionAddress,
+			branchAddress,
+			branchAndGate,
+			BranchOrPC
 		);
 		
 	Shifter1: shift_left_by_2
@@ -334,12 +346,12 @@ begin
 		port map(
 			in_address => nextAddress,
 			out_address => instructionAddress,
-			clk => CLK
+			clk => enable
 		);
 	
 	ANDgate: and_gate
 		port map(
-			A => Branch,
+			A => Branch1,
 			B => zeroFlag,
 			Y => branchAndGate
 		);

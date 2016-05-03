@@ -42,9 +42,14 @@ end ALU;
 
 architecture Behavioral of ALU is
 
+
+
 begin
 	process(A, B, S)
-	begin
+	
+		variable temp: STD_LOGIC_VECTOR(31 downto 0);
+	
+	begin	
 	
 	case S is
 		when "0000" =>
@@ -64,26 +69,29 @@ begin
 		when "0111" =>
 			y <= not(a xor b);
 		when "1000" =>
-			y <= a + b;
+			y <= SIGNED(a) + SIGNED(b);
 		when "1001" =>
 			y <= a + 1;
 		when "1010" =>
 			y <= a - 1;
 		when "1011" => --slt
 			if a < b then
-				y <= x"000" & "0001";
+				y <= x"0000000" & "0001";
 			else
-				y <= x"0000";
+				y <= x"00000000";
 			end if;
 		when "1100" =>
 			y <= a - b;
+			temp := SIGNED(a) - SIGNED(b);
+			if (temp = x"0000") then
+				z <= '1';
+			else
+				z <= '0';
+			end if;
 		when others =>
 			y <= "UUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUU";
 		end case;
 				
 	end process;
-	
-	z <= "1" when ((y = STD_LOGIC_VECTOR(x"000" & "0001")) and (not(s = STD_LOGIC_VECTOR("1010")))) else
-		  "0";
 
 end Behavioral;

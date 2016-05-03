@@ -51,23 +51,23 @@ begin
 	begin
 		if ((CLK'event) and (CLK = '1')) then
 			if (WE3 = '1') then
-				registers(CONV_INTEGER(A3)) <= WD3;
+				registers(CONV_INTEGER(UNSIGNED(A3))) <= WD3;
 			end if;
 		end if;
 	end process;
 	
 	process(A1, A2)
 	begin
-		if (CONV_INTEGER(A1) = 0) then -- $0
-			RD1 <= x"0000";
+		if (CONV_INTEGER(UNSIGNED(A1)) = 0) then -- $0
+			RD1 <= x"00000000";
 		else
-			RD1 <= registers(CONV_INTEGER(A1));
+			RD1 <= registers(CONV_INTEGER(UNSIGNED(A1)));
 		end if;
 			
-		if (CONV_INTEGER(A2) = 0) then
-			RD2 <= x"0000";
+		if (CONV_INTEGER(UNSIGNED(A2)) = 0) then
+			RD2 <= x"00000000";
 		else
-			RD2 <= registers(CONV_INTEGER(A2));
+			RD2 <= registers(CONV_INTEGER(UNSIGNED(A2)));
 		end if;
 	end process;
 
