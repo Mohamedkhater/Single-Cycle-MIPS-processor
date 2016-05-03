@@ -348,7 +348,8 @@ begin
 		port map(
 			nextAddress,
 			instructionAddress,
-			CLK
+			CLK,
+			RESET
 		);
 	
 	ANDgate: and_gate
