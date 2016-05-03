@@ -32,7 +32,10 @@ use IEEE.STD_LOGIC_1164.ALL;
 entity MIPS is
 	Port( CLK: in STD_LOGIC; 
 			RESET: in STD_LOGIC;
-			result: inout STD_LOGIC_VECTOR(31 downto 0));
+			result: inout STD_LOGIC_VECTOR(31 downto 0);
+			ALUresult: buffer STD_LOGIC_VECTOR(31 downto 0);
+			RD2: inout STD_LOGIC_VECTOR(31 downto 0);
+			MemWrite: inout STD_LOGIC);
 end MIPS;
 
 architecture Behavioral of MIPS is
@@ -121,7 +124,8 @@ architecture Behavioral of MIPS is
 	component program_counter is
 	Port ( in_address : in  STD_LOGIC_VECTOR (31 downto 0);
 		   out_address : out  STD_LOGIC_VECTOR (31 downto 0);
-		   clk : in STD_LOGIC);
+		   clk : in STD_LOGIC;
+			reset : in STD_LOGIC);
 	end component;
 	
 	component and_gate is
@@ -131,7 +135,7 @@ architecture Behavioral of MIPS is
 	end component;
 	
 	signal MemtoReg,
-           MemWrite,
+           -- MemWrite,
            Branch,
            ALUSrc,
            RegDst,
@@ -145,9 +149,9 @@ architecture Behavioral of MIPS is
 			instructionAddress,
 			nextInstructionAddress,
 			nextAddress,
-			ALUresult,
+			-- ALUresult,
 			RD1,
-			RD2,
+			-- RD2,
 			WD,
 			immSignExtended,
 			shiftSignExtended,
@@ -158,7 +162,7 @@ architecture Behavioral of MIPS is
 			concatJumpAddress,
 			branchAddress,
 			BranchOrPC
-			--result
+			-- result
 			: STD_LOGIC_VECTOR(31 downto 0);
 			 
 	signal RS,
@@ -168,7 +172,7 @@ architecture Behavioral of MIPS is
 			WriteReg
 			: STD_LOGIC_VECTOR(4 downto 0);
 			 
-	signal OpCode1,
+	signal OpCode,
 			Funct
 			: STD_LOGIC_VECTOR(5 downto 0);
 			 
@@ -192,20 +196,7 @@ architecture Behavioral of MIPS is
 
 begin
 
---	process(CLK)
---	begin
---	
---		if (CLK = '1') and (CLK'event) then
---			if (enable = '1') then
---				enable <= '0';
---			else
---				enable <= '1';
---			end if;
---		end if;
---	
---	end process;
-
-	OpCode1 <= instruction(31 downto 26);
+	OpCode <= instruction(31 downto 26);
 	RS <= instruction(25 downto 21);
 	RT <= instruction(20 downto 16);
 	RD <= instruction(15 downto 11);
@@ -219,14 +210,14 @@ begin
 	-- components - signals mapping
 	ControlUnit: control_unit
 		port map(
-			OpCode1,
-			MemtoReg1,
-			MemWrite1,
-			Branch1,
-			ALUSrc1,
-			RegDst1,
-			RegWrite1,
-			Jump1
+			OpCode,
+			MemtoReg,
+			MemWrite,
+			Branch,
+			ALUSrc,
+			RegDst,
+			RegWrite,
+			Jump
 		);
 		
 	SignExtension: sign_extension
@@ -241,7 +232,7 @@ begin
 			RS,
 			RT,
 			WriteReg,
-			RegWrite1,
+			RegWrite,
 			result,
 			RD1,
 			RD2
@@ -265,9 +256,9 @@ begin
 		
 	DataMemory: data_memory
 		port map(
-			instructionAddress,
+			ALUresult,
 			RD2,
-			MemWrite1,
+			MemWrite,
 			CLK,
 			ReadData
 		);
@@ -277,7 +268,7 @@ begin
 		port map(
 			RD2,
 			immSignExtended,
-			ALUSrc1,
+			ALUSrc,
 			ALUinput2
 		);
 		
@@ -286,7 +277,7 @@ begin
 		port map(
 			ALUresult,
 			ReadData,
-			MemtoReg1,
+			MemtoReg,
 			result
 		);
 		
@@ -296,7 +287,7 @@ begin
 		port map(
 			RT,
 			RD,
-			RegDst1,
+			RegDst,
 			WriteReg
 		);
 		
@@ -305,7 +296,7 @@ begin
 		port map(
 			BranchOrPC,
 			concatJumpAddress,
-			Jump1,
+			Jump,
 			nextAddress
 		);
 		
@@ -354,7 +345,7 @@ begin
 	
 	ANDgate: and_gate
 		port map(
-			Branch1,
+			Branch,
 			zeroFlag,
 			branchAndGate
 		);
